@@ -20,7 +20,7 @@
 
 Статус заказа может обновить админ и сообщение от соседнего сервиса.
 
-А ещё у нас есть отчёты - каждый день сторонний сервис дёргает наш эндпоинт, который НАЧИНАЕТ генерацию отчёта. Этому отчёту присваивается какой то номер или бейджик, который мы и отдаём в ответе. По окончании генерации мы шлём событие в кафку о том, что отчёт сгенерирован. Сам по себе отчёт для простоты будем сохранять в локальный файл.
+А ещё у нас есть отчёты - каждый день сторонний сервис дёргает наш эндпоинт, который НАЧИНАЕТ генерацию отчёта. Этому отчёту присваивается какой то номер или бейджик, который мы и отдаём в ответе. По окончании генерации мы шлём событие в кролика о том, что отчёт сгенерирован. Сам по себе отчёт для простоты будем сохранять в локальный файл.
 
 Что в отчёте: в отчёте у нас список всех проданных товаров т.е. если велосипед_10 купили 5 раз разные люди, то он 5 раз будет в этом отчёте. Это будет файл .jsonl вида:
 
@@ -33,68 +33,81 @@
 
 ### Сообщение о изменении/создании товара
 
-```json
+```json5
 {
-	"id": int,
-	"name": string,
+	"id": "int",
+	"name": "string",
 	"measurments": {
-		"weight": int,
-		"height": int,
-		"width": int,
-		"lenght": int,
+		"weight": "int",
+		"height": "int",
+		"width": "int",
+		"lenght": "int",
 	}
-	"description": ?string,
-	"cost": int,
-	"tax": int,
-	"version": int
+	"description": "?string",
+	"cost": "int",
+	"tax": "int",
+	"version": "int"
 }
 ```
 
 ### Сообщение с уведомлением о заказе по sms/email
 
-```json
+```json5
 {
 	"type": "string", //"sms", "email",
-	"userPhone": string, // if email type passed
-	"userEmail": string, // if sms type passed
-	"notificationType": string //"requires_payment", "success_payment", "completed"
-	"orderNum": string,
+	"userPhone": "string", // if email type passed
+	"userEmail": "string", // if sms type passed
+	"notificationType": "string", //"requires_payment", "success_payment", "completed"
+	"orderNum": "string",
 	"orderItems": [
 		{
-			"name": string,
-			"cost": int,
-			"additionalInfo": ?string
+			"name": "string",
+			"cost": "int",
+			"additionalInfo": "?string"
 		}
-		...
 	],
-	"deliveryType": string // "selfdelivery", "courier"
+	"deliveryType": "string", // "selfdelivery", "courier"
 	"deliveryAddress": {
-		"kladrId": ?int,
-		"fullAddress": ?string,
+		"kladrId": "?int",
+		"fullAddress": "?string",
 	}
 }
 ```
 
 ### Сообщение с уведомлением о регистраципо sms/email
 
-```json
+```json5
 {
 	"type": "string", //"sms", "email",
-	"userPhone": string, // if email type passed
-	"userEmail": string, // if sms type passed
-	"promoId": string //uuid4
+	"userPhone": "string", // if email type passed
+	"userEmail": "string", // if sms type passed
+	"promoId": "string" //uuid4
 }
 ```
 
 ### Сообщение ответом по отчёту
 
-```json
+```json5
 {
-	"reportId": string, //"ebca4412-3965-45a8-bd36-4c1d1b768e7b"
-	"result": string // "success", "fail"
+	"reportId": "string", //"ebca4412-3965-45a8-bd36-4c1d1b768e7b"
+	"result": "string", // "success", "fail"
 	"detail": { // поле обязательно только в случае ошибки
-		"error": string,
-		"message": ?string
+		"error": "string",
+		"message": "?string"
 	}
 }
 ```
+
+Требования:
+1. Стек - symfony, postgres, rabbbitmq
+2. Фронт не нужен
+3. Покрыть тестами все роуты
+4. Контроль качества кода - php-cs-fixer (phpyh-coding-standart) + phpstan/psalm
+
+Усложнения:
+1. сделать translatable exceptions через механизмы ивентов симфы (request life-circle)
+2. отправлять админам имейл (запрос к нашему сервису-заглушке) при создании нового заказа (механизм событий доктрины)
+3. кеширование продуктов с redis
+4. ci/cd pipeline с gitlab
+5. fuzzy поиск продуктов с opensearch
+6. аналитика визитов пользователей с clickhouse (в какие часы у нас максимум посетителей)

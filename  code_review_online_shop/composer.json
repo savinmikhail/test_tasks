@@ -1,0 +1,19 @@
+{
+  "name": "raketa/backend-test-task",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "autoload": {
+    "psr-4": {
+      "Raketa\\BackendTestTask\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.2",
+    "ext-redis": "*",
+    "doctrine/dbal": "^4.1",
+    "psr/log": "^3.0",
+    "psr/http-message": "^2.0",
+    "ramsey/uuid": "^4.2"
+  }
+}

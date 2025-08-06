@@ -79,8 +79,8 @@
 ```json5
 {
 	"type": "string", //"sms", "email",
-	"userPhone": "string", // if email type passed
-	"userEmail": "string", // if sms type passed
+	"userPhone": "string", // if sms type passed
+	"userEmail": "string", // if email type passed
 	"promoId": "string" //uuid4
 }
 ```
